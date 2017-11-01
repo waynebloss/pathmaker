@@ -53,6 +53,10 @@ console.log(
   AppURL.login({redirect: '/dashboard'})
 ); // http://www.site.test/app-name/account/login/?redirect=%2Fdashboard
 
+console.log( // Equivalent to above:
+  AppURL.base('account/login/', {redirect: '/dashboard'})
+); // http://www.site.test/app-name/account/login/?redirect=%2Fdashboard
+
 console.log(
   AppURL.api.user('10')
 ); // http://api.site.test/user/10
