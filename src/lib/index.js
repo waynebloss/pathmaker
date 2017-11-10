@@ -80,6 +80,8 @@ export default function PathMaker(basePath, opts) {
       return params;
     var keys = Object.keys(params);
     var len = keys.length;
+    if (len < 1)
+      return '';
     for (var i = 0; i < len; i++) {
       let key = keys[i];
       keys[i] = key + '=' + encodeURIComponent(params[key]);
