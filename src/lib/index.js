@@ -44,7 +44,9 @@ export default function PathMaker(basePath, opts) {
    */
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
-    return PathMaker(subBasePath, subOpts || opts);
+    var pm = PathMaker(subBasePath, subOpts || opts);
+    pm.path = subPath;
+    return pm;
   }
   /**
    * Returns a path string from joining the base and given path.
@@ -107,7 +109,7 @@ export default function PathMaker(basePath, opts) {
     return '' + arg;
   }
   /**
-   * The base path for this instance of the makePath function.
+   * The base path for this `PathMaker` instance.
    * @type {string}
    */
   makePath.basePath = basePath;
@@ -135,6 +137,12 @@ export default function PathMaker(basePath, opts) {
    * @returns {string} A url query string.
    */
   makePath.query = makeQueryString;
+  /**
+   * Path passed to the `sub` method, to create this `PathMaker` instance.
+   * Only exists on `PathMaker` instances created by calling `sub`.
+   * @type {string}
+   */
+  makePath.path = '';
 
   return makePath;
 }
