@@ -1,3 +1,5 @@
+// #region Helpers
+
 function isDelimiter(value) {
   return typeof value === 'string' && value.length > 0;
 }
@@ -13,22 +15,29 @@ function isPathStringOrArray(value) {
 function isTokenPrefix(value) {
   return typeof value === 'string' && value.length > 0 && value.length < 2;
 }
+// #endregion
 
 /**
  * Returns a function that makes URL or FileSystem paths from a given base 
  * path.
  * @param {string} basePath The base url or file path.
- * @param {object|string} [opts] `PathMaker` options or the path delimiter ('/').
- * @param {string} [opts.delimiter=/] The path delimiter ('/').
+ * @param {object} [opts] `PathMaker` options or the directory delimiter.
+ * @param {string} [opts.delimiter] The directory delimiter. ('/')
+ * @param {string} [opts.path] Logical path represented by this instance,
+ * for use by your application via the `.path` field of the returned function
+ * instance. ('')
+ * @param {string} [opts.tokenPrefix] Prefix used to identify tokens within
+ * a path. (':') e.g. '/path/to/:id/' where `:id` is the token.
+ * @returns {function} The `PathMaker` function instance to make paths with.
  */
 export default function PathMaker(basePath, opts) {
   /** 
-   * Path part delimiter. ('/')
+   * Directory delimiter. ('/')
    * @type {string}
    */
   var delimiter = '/';
   /** 
-   * Path to attach to the `makePath` function instance being returned.
+   * Logical path represented by this instance.
    * @type {string}
    */
   var pathFromOptions = '';
@@ -41,8 +50,8 @@ export default function PathMaker(basePath, opts) {
 
   /**
    * Combines 2 paths.
-   * @param {string|string[]} path1
-   * @param {string|string[]} path2
+   * @param {(string|string[])} path1
+   * @param {(string|string[])} path2
    * @returns {string} The combined path.
    */
   function combinePath(path1, path2) {
@@ -61,8 +70,11 @@ export default function PathMaker(basePath, opts) {
   /**
    * Returns a new `PathMaker` by joining base path and the given path.
    * @param {string} subPath The url or file path to add to the parent basePath.
-   * @param {object} [subOpts] `PathMaker` options or the path delimiter ('/').
-   * @param {string} [subOpts.delimiter=/] The path delimiter ('/').
+   * @param {object} [subOpts] `PathMaker` options.
+   * @param {string} [subOpts.path] Logical path represented by this instance,
+   * (if different than the `subPath`) for use by your application via the 
+   * `.path` field of the returned function instance. ('')
+   * @returns {function} A new `PathMaker` function instance.
    */
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
@@ -76,9 +88,9 @@ export default function PathMaker(basePath, opts) {
    * `payload` values and joining `payload.query` or `query` values as a URL 
    * query string.
    * #### Only `query` values are encoded with `encodeURIComponent`.
-   * @param {string|string[]|object} path The `path` to join to the basePath 
+   * @param {(string|string[]|object)} [path] The `path` to join to the basePath 
    * OR the `payload` object.
-   * @param {object} payload - Object to merge into the `basePath` and `path`,
+   * @param {object} [payload] Object to merge into the `basePath` and `path`,
    * e.g. path '/things/:id/' merged with `{ id: 10 }` becomes '/things/10/'.
    * May contain a `query` object to create a URL query string, 
    * e.g. '?p=value' from `{ p: 'value' }`.
@@ -148,10 +160,11 @@ export default function PathMaker(basePath, opts) {
     return '?' + keys.join('&');
   }
   /**
-   * 
-   * @param {string} path 
-   * @param {object} payload 
-   * @returns {string}
+   * Returns a path with `payload` fields merged into the `path` template.
+   * @param {string} path Path template. e.g. '/things/:id/'
+   * @param {object} payload Object to merge into the `path` template.
+   * e.g. path '/things/:id/' merged with `{ id: 10 }` becomes '/things/10/'.
+   * @returns {string} A concrete path.
    */
   function mergePayload(path, payload) {
     const parts = path.split(delimiter).map(
@@ -176,9 +189,10 @@ export default function PathMaker(basePath, opts) {
   }
   /**
    * Returns a normalized path string from the given argument.
+   * Undefined and null are returned as a blank string.
    * If the argument is an array, the path is created by joining
-   * all elements of the array with a forward slash.
-   * @param {string|string[]} arg The array or string to normalize into a string.
+   * all elements of the array with the directory `delimiter`.
+   * @param {string|string[]} arg The array or string to normalize.
    * @returns {string} The normalized path.
    */
   function normalizePath(arg) {
@@ -193,6 +207,7 @@ export default function PathMaker(basePath, opts) {
     return '' + arg;
   }
 
+  // #region Normalize Options
   if (isDelimiter(opts)) {
     delimiter = opts;
   } else if (opts) {
@@ -200,16 +215,16 @@ export default function PathMaker(basePath, opts) {
     if (isPathString(opts.path)) pathFromOptions = opts.path;
     if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
   }
-
   basePath = normalizePath(basePath);
+  // #endregion
 
   /**
-   * The base path for this `PathMaker` instance.
+   * The full base path for this `PathMaker` instance.
    * @type {string}
    */
   makePath.basePath = basePath;
   /**
-   * Returns a new `PathMaker` by joining base path and the given path.
+   * Returns a new `PathMaker` by joining `basePath` with the given `path`.
    * @function
    * @param {string} path The path to join to the basePath.
    * @returns {PathMaker} A new `PathMaker`.
@@ -220,7 +235,7 @@ export default function PathMaker(basePath, opts) {
    * If the argument is an array, the path is created by joining
    * all elements of the array with a forward slash.
    * @function
-   * @param {string|string[]} arg The array or string to normalize into a string.
+   * @param {string|string[]} arg The array or string to normalize.
    * @returns {string} The normalized path.
    */
   makePath.normalize = normalizePath;
@@ -233,8 +248,9 @@ export default function PathMaker(basePath, opts) {
    */
   makePath.query = makeQueryString;
   /**
-   * Path or sub-path used to create this `PathMaker` instance.
-   * Passed in to the `PathMaker` function or its `sub` method.
+   * Logical path represented by this instance, for use by your application.
+   * Not used by any `PathMaker` functionality. Passed in via the `PathMaker` 
+   * function or its `sub` method.
    * @type {string}
    */
   makePath.path = pathFromOptions;
