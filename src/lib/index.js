@@ -99,7 +99,7 @@ export default function PathMaker(basePath, opts) {
    * e.g. path '/things/:id/' merged with `{ id: 10 }` becomes '/things/10/'.
    * May contain a `query` object to create a URL query string, 
    * e.g. '?p=value' from `{ p: 'value' }`.
-   * @param {object} [query] Object to create a URL query string, 
+   * @param {(object|object[])} [query] Object to create a URL query string, 
    * e.g. '?p=value' from `{ p: 'value' }`.
    * @returns {string} The `basePath` joined with `path`, merged with 
    * `payload` and optionally joined with a URL `query` string.
