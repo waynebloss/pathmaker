@@ -27,7 +27,7 @@ export default function PathMaker(basePath, opts) {
     delimiter = opts;
   } else if (opts) {
     if (isDelimiter(opts.delimiter)) delimiter = opts.delimiter;
-    if (isPath(opts.path)) pathFromOptions = opts.path;
+    if (isPathString(opts.path)) pathFromOptions = opts.path;
     if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
   }
 
@@ -86,27 +86,29 @@ export default function PathMaker(basePath, opts) {
     switch (arguments.length) {
       case 0: return returnPath;
       case 1:
-        if (typeof path === 'string' || Array.isArray(path)) {
+        if (isPathStringOrArray(path)) {
+          // makePath('/the/path/');
           returnPath = combinePath(basePath, path);
         } else {
+          // makePath({ the: 'payload', query: {} });
           payload = path;
-          if (payload)
-            query = payload.query;
+          if (payload) query = payload.query;
         }
         break;
       case 2:
-        if (typeof path === 'string' || Array.isArray(path)) {
+        if (isPathStringOrArray(path)) {
+          // makePath('/the/path/', { the: 'payload', query: {} });
           returnPath = combinePath(basePath, path);
-          if (payload)
-            query = payload.query;
+          if (payload) query = payload.query;
         } else {
+          // makePath({ the: 'payload' }, { the: 'query' });
           query = payload;
           payload = path;
-          if (payload)
-            query = query || payload.query;
+          if (!query && payload) query = payload.query;
         }
         break;
       default:
+        // makePath('/the/path/', { the: 'payload' }, { the: 'query' });
         returnPath = combinePath(basePath, path);
         break;
     }
@@ -227,8 +229,12 @@ function isDelimiter(value) {
   return typeof value === 'string' && value.length > 0;
 }
 
-function isPath(value) {
+function isPathString(value) {
   return typeof value === 'string';
+}
+
+function isPathStringOrArray(value) {
+  return typeof value === 'string' || Array.isArray(value);
 }
 
 function isTokenPrefix(value) {

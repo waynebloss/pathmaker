@@ -16,7 +16,7 @@ const Sample = {
 
 var b1 = base();
 var b2 = base('/a/sub-path/');
-var b3 = base(null, {and: 'params'});
+var b3 = base({ query: {and: 'params'} });
 
 var r1 = Sample.sub1();
 var r2 = Sample.sub1(null, {and: 'params', withValues: 'encoded and everything'});
