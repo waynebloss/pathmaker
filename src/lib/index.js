@@ -144,16 +144,14 @@ export default function PathMaker(basePath, opts) {
     return returnPath;
   }
   /**
-   * Makes a url query string from an object.
-   * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
-   * @param {object} query The object to make a query string from.
+   * Makes a url query string from an object or array.
+   * @param {(object|object[])} query The object or array to make a query string from.
    * @returns {string} A url query string.
+   * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    */
   function makeQueryString(query) {
-    if (!query)
+    if (query === null || typeof query !== 'object')
       return '';
-    if (typeof query === 'string')
-      return query;
     var keys = Object.keys(query);
     var len = keys.length;
     if (len < 1)
@@ -256,11 +254,11 @@ export default function PathMaker(basePath, opts) {
    */
   makePath.normalize = normalizePath;
   /**
-   * Makes a url query string from an object.
-   * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
+   * Makes a url query string from an object or array.
    * @function
-   * @param {object} query The object to make a query string from.
+   * @param {(object|object[])} query The object or array to make a query string from.
    * @returns {string} A url query string.
+   * @example `pathMaker.query({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    */
   makePath.query = makeQueryString;
   /**
