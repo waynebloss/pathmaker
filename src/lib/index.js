@@ -10,6 +10,11 @@ export default function PathMaker(basePath, opts) {
   /** @type {string} */
   var delimiter = DefaultDelimiter;
 
+  // TODO: New option to specify path template part key prefix.
+  // The default is a colon (':'), e.g. '/path/to/:id/'
+
+  // TODO: New option to specify the `PathMaker.path` field.
+
   if (isDelimiter(opts))
     delimiter = opts;
   else if (opts && isDelimiter(opts.delimiter))
