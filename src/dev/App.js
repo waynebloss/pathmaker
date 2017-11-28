@@ -16,12 +16,13 @@ const Sample = {
 
 var b1 = base();
 var b2 = base('/a/sub-path/');
-var b3 = base({and: 'params'});
+var b3 = base(null, {and: 'params'});
 
 var r1 = Sample.sub1();
-var r2 = Sample.sub1({and: 'params', withValues: 'encoded and everything'});
+var r2 = Sample.sub1(null, {and: 'params', withValues: 'encoded and everything'});
 var r3 = Sample.sub2();
-var r4 = Sample.sub2({and: 'params', withValues: 'encoded and everything'});
+var r4 = Sample.sub2('/payload/:id/', { id: 10 });
+var r5 = Sample.sub2('/payload/:id/', { id: 'x+y' }, {and: 'params', withValues: 'encoded and everything'});
 
 class App extends Component {
   render() {
@@ -38,6 +39,7 @@ class App extends Component {
         <p>{r2}</p>
         <p>{r3}</p>
         <p>{r4}</p>
+        <p>{r5}</p>
       </div>
     );
   }

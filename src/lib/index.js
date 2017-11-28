@@ -49,46 +49,124 @@ export default function PathMaker(basePath, opts) {
     return pm;
   }
   /**
-   * Returns a path string from joining the base and given path.
-   * #### Query object values are encoded with `encodeURIComponent`.
-   * No other part of the path is automatically encoded.
-   * @param {string|string[]|object} path The path to join to the basePath OR the params.
-   * @param {object|string} [params] Optional params to create a query string.
-   * @returns {string} The path joined to the basePath.
+   * Returns a path string from joingin `basePath` and `path`, merging 
+   * `payload` values and joining `payload.query` or `query` values as a URL 
+   * query string.
+   * #### Only `query` values are encoded with `encodeURIComponent`!
+   * @param {string|string[]|object} path The `path` to join to the basePath 
+   * OR the `payload` object.
+   * @param {object} payload - Object to merge into the `basePath` and `path`,
+   * e.g. path '/things/:id/' merged with `{ id: 10 }` becomes '/things/10/'.
+   * May contain a `query` object to create a URL query string, 
+   * e.g. '?p=value' from `{ p: 'value' }`.
+   * @param {object} [query] Object to create a URL query string, 
+   * e.g. '?p=value' from `{ p: 'value' }`.
+   * @returns {string} The `basePath` joined with `path`, merged with 
+   * `payload` and optionally joined with a URL `query` string.
    */
-  function makePath(path, params) {
+  function makePath(path, payload, query) {
+    /*
     if (arguments.length > 1) {
-      return combinePath(basePath, path) + makeQueryString(params);
+      return combinePath(basePath, path) + makeQueryString(query);
     }
     // 1 argument.
     if (typeof path !== 'string' && !Array.isArray(path)) {
-      // Treat path as params.
-      //params = path;
+      // Treat path as query.
+      //query = path;
       return basePath + makeQueryString(path);
     }
-    // No params.
+    // No query.
     return combinePath(basePath, path);
+    */
+    var returnPath = basePath;
+    switch(arguments.length) {
+      case 0: return returnPath;
+      case 1:
+        if (typeof path === 'string' || Array.isArray(path)) {
+          returnPath = combinePath(basePath, path);
+        } else {
+          payload = path;
+          if (payload)
+            query = payload.query;
+        }
+      break;
+      case 2:
+        if (typeof path === 'string' || Array.isArray(path)) {
+          returnPath = combinePath(basePath, path);
+          if (payload)
+            query = payload.query;
+        } else {
+          query = payload;
+          payload = path;
+          if (payload)
+            query = query || payload.query;
+        }
+      break;
+      default:
+        returnPath = combinePath(basePath, path);
+      break;
+    }
+    if (payload) {
+      returnPath = mergePayload(returnPath, payload);
+    }
+    if (query) {
+      returnPath += makeQueryString(query);
+    }
+    // console.log('makePath: "' + returnPath + '" from - ', {
+    //   path,
+    //   payload,
+    //   query,
+    // });
+    return returnPath;
   }
   /**
    * Makes a url query string from an object.
    * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
-   * @param {object} params The object to make a query string from.
+   * @param {object} query The object to make a query string from.
    * @returns {string} A url query string.
    */
-  function makeQueryString(params) {
-    if (!params)
+  function makeQueryString(query) {
+    if (!query)
       return '';
-    if (typeof params === 'string')
-      return params;
-    var keys = Object.keys(params);
+    if (typeof query === 'string')
+      return query;
+    var keys = Object.keys(query);
     var len = keys.length;
     if (len < 1)
       return '';
     for (var i = 0; i < len; i++) {
       let key = keys[i];
-      keys[i] = key + '=' + encodeURIComponent(params[key]);
+      keys[i] = key + '=' + encodeURIComponent(query[key]);
     }
     return '?' + keys.join('&');
+  }
+
+  /**
+   * 
+   * @param {string} path 
+   * @param {object} payload 
+   * @returns {string}
+   */
+  function mergePayload(path, payload) {
+    const parts = path.split(delimiter).map(
+      /**
+       * Returns a part from the payload, or the given part.
+       * @param {string} part The path part that may need to be merged.
+       * @returns {string} The part itself or a matching part from the payload.
+       */
+      function partFromPayload(part) {
+        if (part.length < 2 || part.charAt(0) !== ':')
+          return part;
+        const key = part.substr(1);
+        if (!payload.hasOwnProperty(key))
+          return part;
+        const value = payload[key];
+        if (value === undefined || value === null)
+          return '' + value; // Returns 'undefined' or 'null'.
+        return value.toString();
+      }
+    );
+    return parts.join(delimiter);
   }
   /**
    * Returns a normalized path string from the given argument.
@@ -133,7 +211,7 @@ export default function PathMaker(basePath, opts) {
    * Makes a url query string from an object.
    * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    * @function
-   * @param {object} params The object to make a query string from.
+   * @param {object} query The object to make a query string from.
    * @returns {string} A url query string.
    */
   makePath.query = makeQueryString;
