@@ -18,9 +18,9 @@ const AppURL = {
   /** Site URL maker, to make URLs outside of base. */
   site,
 
-  login: base.sub('account/login/'),
-  forgotPassword: base.sub('account/forgot-password/'),
-  register: base.sub('account/register/'),
+  login: base.sub('/login/'),
+  product: base.sub('/products/:id/'),
+  products: base.sub('/products/'),
 
   /** API URL makers. */
   api: {
@@ -29,7 +29,7 @@ const AppURL = {
 
     account: api.sub('account'),
     oauth: api.sub('oauth'),
-    user: api.sub('user'),
+    user: api.sub('users/:id'),
     users: api.sub('users'),
   }
 
@@ -50,31 +50,41 @@ console.log(
 ); // http://www.site.test/app-name/
 
 console.log(
-  AppURL.login({redirect: '/dashboard'})
-); // http://www.site.test/app-name/account/login/?redirect=%2Fdashboard
+  AppURL.product({ id: 999 });
+); // http://www.site.test/app-name/products/999/
+
+console.log(
+  AppURL.login({ query: {redirect: '/dashboard'} })
+); // http://www.site.test/app-name/login/?redirect=%2Fdashboard
 
 console.log( // Equivalent to above:
-  AppURL.base('account/login/', {redirect: '/dashboard'})
-); // http://www.site.test/app-name/account/login/?redirect=%2Fdashboard
+  AppURL.base('login/', { query: {redirect: '/dashboard'} })
+); // http://www.site.test/app-name/login/?redirect=%2Fdashboard
 
 console.log(
-  AppURL.api.user(10)
-); // http://api.site.test/user/10
+  AppURL.api.user({ id: 10 })
+); // http://api.site.test/users/10
 
-console.log(
-  AppURL.api.user([10, 'organizations/search'], {q: 'the query'})
-); // http://api.site.test/user/10/organizations/search?q=the%20query
+console.log( // Alternatively, pass an array as a path.
+  AppURL.api.users([10, 'organizations/search'], { query: {q: 'the query'} })
+); // http://api.site.test/users/10/organizations/search?q=the%20query
 
-console.log( // If you want plus signs in your query you must do it yourself!
-  AppURL.api.user([10, 'organizations/search' + '?q=the+query'])
-); // http://api.site.test/user/10/organizations/search?q=the+query
 ```
 
 ## Notes
 
-- There is only one option: delimiter. This defaults to a forward slash (`'/'`).
 - Trailing delimiters are not automatically added or removed at any time.
-- Only query object values are encoded with `encodeURIComponent`. No other part of the path is automatically encoded.
+- Only query object values are encoded with `encodeURIComponent`. No other 
+part of the path is automatically encoded.
+
+
+## Options
+
+| Name | Default Value | Description |
+| ---- | ------------- | ----------- |
+| `delimiter` | `'/'` | The path delimiter. |
+| `tokenPrefix` | `':'` | The path token prefix. |
+| `path` | `''` | The path represented by the `PathMaker`. |
 
 ## Roadmap
 
@@ -84,37 +94,8 @@ This code is trivial, it works and it's been in use for a while before it was
 published as an NPM. However, we need tests to protect against regressions! 
 I think jest is already setup here for us.
 
-### Should we use encodeURIComponent on sub-paths?
-
-I don't know. I don't need this right now.
-
-### Spaces as plus signs in query string
-
-Maybe add an option to convert spaces to plus signs in query strings, so that
-you can have URLs like `https://www.google.com/search?q=who+encodes+spaces+as+plus`.
-The option would be applied in `makeQueryString` to basically achieve this:
-`encodeURIComponent(params[key]).replace(/%20/g, "+");`
-
-BUT...when do you pass such an option? When you create the `PathMaker`?
-```js
-const api = PathMaker('http://api.site.test/user/', { querySpaceAsPlus: true });
-console.log(
-  api([10, 'organizations/search'], {q: 'the query'})
-); // http://api.site.test/user/10/organizations/search?q=the+query
-```
-OR When you make a path? 
-```js
-const api = PathMaker('http://api.site.test/user/');
-console.log(
-  api([10, 'organizations/search'], {q: 'the query'}, { querySpaceAsPlus: true })
-); // http://api.site.test/user/10/organizations/search?q=the+query
-```
-OR BOTH?
-
-This sounds appealing at first because I don't really need this feature!
-And that's why I'm leaving it out. Also, for version 2.0, I may just let
-a formatter function to be passed as an option to handle it.
-
 ## History
 
-This project was bootstrapped with [Best way to create npm packages with create-react-app](https://medium.com/@lokhmakov/best-way-to-create-npm-packages-with-create-react-app-b24dd449c354).
+* This project was bootstrapped with [Best way to create npm packages with create-react-app](https://medium.com/@lokhmakov/best-way-to-create-npm-packages-with-create-react-app-b24dd449c354).
+* Released 1.0 - 1.0.4
+* Released 2.0 with one major breaking change: to add path tokens.
