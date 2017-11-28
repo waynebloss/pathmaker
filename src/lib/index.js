@@ -69,18 +69,22 @@ export default function PathMaker(basePath, opts) {
   }
   /**
    * Returns a new `PathMaker` by joining base path and the given path.
-   * @param {string} subPath The url or file path to add to the parent basePath.
-   * @param {object} [subOpts] `PathMaker` options.
-   * @param {string} [subOpts.path] Logical path represented by this instance,
-   * (if different than the `subPath`) for use by your application via the 
+   * @param {string} subPath The url or file path to add to the `basePath`.
+   * Available via the `.path` field of the returned function instance unless
+   * overriden in `subOpts`.
+   * @param {(object|string)} [subOpts] Sub path options or the logical `path`.
+   * @param {string} [subOpts.path] Logical path represented by this instance 
+   * if it is different than the `subPath`. For use by your application via the
    * `.path` field of the returned function instance. ('')
    * @returns {function} A new `PathMaker` function instance.
    */
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
-    var pm = PathMaker(subBasePath, subOpts || opts);
-    if (pm.path.length < 0)
-      pm.path = subPath;
+    var pm = PathMaker(subBasePath, opts);
+    if (isPathString(subOpts))
+      pm.path = subOpts;
+    else if (subOpts && isPathString(subOpts.path))
+      pm.path = subOpts.path;
     return pm;
   }
   /**
@@ -211,9 +215,20 @@ export default function PathMaker(basePath, opts) {
   if (isDelimiter(opts)) {
     delimiter = opts;
   } else if (opts) {
-    if (isDelimiter(opts.delimiter)) delimiter = opts.delimiter;
-    if (isPathString(opts.path)) pathFromOptions = opts.path;
-    if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
+    // Remove options that should not be re-used between parent and subs,
+    // but without altering the given `opts` object.
+    let srcOpts = opts;
+    opts = {};
+
+    if (isDelimiter(srcOpts.delimiter)) {
+      delimiter = opts.delimiter = srcOpts.delimiter;
+    }
+    if (isPathString(srcOpts.path)) {
+      pathFromOptions = srcOpts.path; // Removed opts.path
+    }
+    if (isTokenPrefix(srcOpts.tokenPrefix)) {
+      tokenPrefix = opts.tokenPrefix = srcOpts.tokenPrefix;
+    }
   }
   basePath = normalizePath(basePath);
   // #endregion
