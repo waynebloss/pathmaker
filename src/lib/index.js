@@ -99,7 +99,7 @@ export default function PathMaker(basePath, opts) {
    * e.g. path '/things/:id/' merged with `{ id: 10 }` becomes '/things/10/'.
    * May contain a `query` object to create a URL query string, 
    * e.g. '?p=value' from `{ p: 'value' }`.
-   * @param {(object|object[])} [query] Object to create a URL query string, 
+   * @param {object} [query] Object to create a URL query string, 
    * e.g. '?p=value' from `{ p: 'value' }`.
    * @returns {string} The `basePath` joined with `path`, merged with 
    * `payload` and optionally joined with a URL `query` string.
@@ -145,7 +145,7 @@ export default function PathMaker(basePath, opts) {
   }
   /**
    * Makes a url query string from an object or array.
-   * @param {(object|object[])} query The object or array to make a query string from.
+   * @param {object} query The object or array to make a query string from.
    * @returns {string} A url query string.
    * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    */
@@ -256,7 +256,7 @@ export default function PathMaker(basePath, opts) {
   /**
    * Makes a url query string from an object or array.
    * @function
-   * @param {(object|object[])} query The object or array to make a query string from.
+   * @param {object} query The object or array to make a query string from.
    * @returns {string} A url query string.
    * @example `pathMaker.query({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    */
