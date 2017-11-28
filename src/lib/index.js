@@ -85,6 +85,8 @@ export default function PathMaker(basePath, opts) {
       pm.path = subOpts;
     } else if (subOpts && isPathString(subOpts.path)) {
       pm.path = subOpts.path;
+    } else {
+      pm.path = subPath;
     }
     return pm;
   }
