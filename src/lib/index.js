@@ -1,3 +1,19 @@
+function isDelimiter(value) {
+  return typeof value === 'string' && value.length > 0;
+}
+
+function isPathString(value) {
+  return typeof value === 'string';
+}
+
+function isPathStringOrArray(value) {
+  return typeof value === 'string' || Array.isArray(value);
+}
+
+function isTokenPrefix(value) {
+  return typeof value === 'string' && value.length > 0 && value.length < 2;
+}
+
 /**
  * Returns a function that makes URL or FileSystem paths from a given base 
  * path.
@@ -22,16 +38,6 @@ export default function PathMaker(basePath, opts) {
    * @type {string}
    */
   var tokenPrefix = ':';
-
-  if (isDelimiter(opts)) {
-    delimiter = opts;
-  } else if (opts) {
-    if (isDelimiter(opts.delimiter)) delimiter = opts.delimiter;
-    if (isPathString(opts.path)) pathFromOptions = opts.path;
-    if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
-  }
-
-  basePath = normalizePath(basePath);
 
   /**
    * Combines 2 paths.
@@ -186,6 +192,17 @@ export default function PathMaker(basePath, opts) {
     }
     return '' + arg;
   }
+
+  if (isDelimiter(opts)) {
+    delimiter = opts;
+  } else if (opts) {
+    if (isDelimiter(opts.delimiter)) delimiter = opts.delimiter;
+    if (isPathString(opts.path)) pathFromOptions = opts.path;
+    if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
+  }
+
+  basePath = normalizePath(basePath);
+
   /**
    * The base path for this `PathMaker` instance.
    * @type {string}
@@ -223,20 +240,4 @@ export default function PathMaker(basePath, opts) {
   makePath.path = pathFromOptions;
 
   return makePath;
-}
-
-function isDelimiter(value) {
-  return typeof value === 'string' && value.length > 0;
-}
-
-function isPathString(value) {
-  return typeof value === 'string';
-}
-
-function isPathStringOrArray(value) {
-  return typeof value === 'string' || Array.isArray(value);
-}
-
-function isTokenPrefix(value) {
-  return typeof value === 'string' && value.length > 0 && value.length < 2;
 }
