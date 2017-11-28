@@ -65,19 +65,6 @@ export default function PathMaker(basePath, opts) {
    * `payload` and optionally joined with a URL `query` string.
    */
   function makePath(path, payload, query) {
-    /*
-    if (arguments.length > 1) {
-      return combinePath(basePath, path) + makeQueryString(query);
-    }
-    // 1 argument.
-    if (typeof path !== 'string' && !Array.isArray(path)) {
-      // Treat path as query.
-      //query = path;
-      return basePath + makeQueryString(path);
-    }
-    // No query.
-    return combinePath(basePath, path);
-    */
     var returnPath = basePath;
     switch(arguments.length) {
       case 0: return returnPath;
@@ -112,11 +99,6 @@ export default function PathMaker(basePath, opts) {
     if (query) {
       returnPath += makeQueryString(query);
     }
-    // console.log('makePath: "' + returnPath + '" from - ', {
-    //   path,
-    //   payload,
-    //   query,
-    // });
     return returnPath;
   }
   /**
@@ -140,7 +122,6 @@ export default function PathMaker(basePath, opts) {
     }
     return '?' + keys.join('&');
   }
-
   /**
    * 
    * @param {string} path 
