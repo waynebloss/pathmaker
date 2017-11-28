@@ -150,7 +150,7 @@ export default function PathMaker(basePath, opts) {
    * @example `makeQueryString({a: 'a', b: 'b'}); // returns '?a=a&b=b' `
    */
   function makeQueryString(query) {
-    if (query === null || typeof query !== 'object')
+    if (query === undefined || query === null)
       return '';
     var keys = Object.keys(query);
     var len = keys.length;
