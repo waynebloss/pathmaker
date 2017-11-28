@@ -72,7 +72,7 @@ export default function PathMaker(basePath, opts) {
    * @param {string} subPath The url or file path to add to the `basePath`.
    * Available via the `.path` field of the returned function instance unless
    * overriden in `subOpts`.
-   * @param {(object|string)} [subOpts] Sub path options or the logical `path`.
+   * @param {object} [subOpts] Sub path options or the logical `path`.
    * @param {string} [subOpts.path] Logical path represented by this instance 
    * if it is different than the `subPath`. For use by your application via the
    * `.path` field of the returned function instance. ('')
@@ -196,7 +196,7 @@ export default function PathMaker(basePath, opts) {
    * Undefined and null are returned as a blank string.
    * If the argument is an array, the path is created by joining
    * all elements of the array with the directory `delimiter`.
-   * @param {string|string[]} arg The array or string to normalize.
+   * @param {(string|string[])} arg The array or string to normalize.
    * @returns {string} The normalized path.
    */
   function normalizePath(arg) {
@@ -250,7 +250,7 @@ export default function PathMaker(basePath, opts) {
    * If the argument is an array, the path is created by joining
    * all elements of the array with a forward slash.
    * @function
-   * @param {string|string[]} arg The array or string to normalize.
+   * @param {(string|string[])} arg The array or string to normalize.
    * @returns {string} The normalized path.
    */
   makePath.normalize = normalizePath;
