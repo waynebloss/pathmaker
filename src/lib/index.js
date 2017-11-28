@@ -81,10 +81,11 @@ export default function PathMaker(basePath, opts) {
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
     var pm = PathMaker(subBasePath, opts);
-    if (isPathString(subOpts))
+    if (isPathString(subOpts)) {
       pm.path = subOpts;
-    else if (subOpts && isPathString(subOpts.path))
+    } else if (subOpts && isPathString(subOpts.path)) {
       pm.path = subOpts.path;
+    }
     return pm;
   }
   /**
