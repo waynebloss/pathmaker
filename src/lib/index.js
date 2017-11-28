@@ -1,24 +1,35 @@
-const DefaultDelimiter = '/';
 /**
  * Returns a function that makes URL or FileSystem paths from a given base 
  * path.
  * @param {string} basePath The base url or file path.
- * @param {object|string} [opts] `PathMaker` options or the path delimiter (/).
- * @param {string} [opts.delimiter=/] The path delimiter (/).
+ * @param {object|string} [opts] `PathMaker` options or the path delimiter ('/').
+ * @param {string} [opts.delimiter=/] The path delimiter ('/').
  */
 export default function PathMaker(basePath, opts) {
-  /** @type {string} */
-  var delimiter = DefaultDelimiter;
+  /** 
+   * Path part delimiter. ('/')
+   * @type {string}
+   */
+  var delimiter = '/';
+  /** 
+   * Path to attach to the `makePath` function instance being returned.
+   * @type {string}
+   */
+  var pathFromOptions = '';
+  /** 
+   * Path template part token prefix. (':')
+   * e.g. '/path/to/:id/' where `:id` is the token.
+   * @type {string}
+   */
+  var tokenPrefix = ':';
 
-  // TODO: New option to specify path template part key prefix.
-  // The default is a colon (':'), e.g. '/path/to/:id/'
-
-  // TODO: New option to specify the `PathMaker.path` field.
-
-  if (isDelimiter(opts))
+  if (isDelimiter(opts)) {
     delimiter = opts;
-  else if (opts && isDelimiter(opts.delimiter))
-    delimiter = opts.delimiter;
+  } else if (opts) {
+    if (isDelimiter(opts.delimiter)) delimiter = opts.delimiter;
+    if (isPath(opts.path)) pathFromOptions = opts.path;
+    if (isTokenPrefix(opts.tokenPrefix)) tokenPrefix = opts.tokenPrefix;
+  }
 
   basePath = normalizePath(basePath);
 
@@ -44,20 +55,21 @@ export default function PathMaker(basePath, opts) {
   /**
    * Returns a new `PathMaker` by joining base path and the given path.
    * @param {string} subPath The url or file path to add to the parent basePath.
-   * @param {object} [subOpts] `PathMaker` options or the path delimiter (/).
-   * @param {string} [subOpts.delimiter=/] The path delimiter (/).
+   * @param {object} [subOpts] `PathMaker` options or the path delimiter ('/').
+   * @param {string} [subOpts.delimiter=/] The path delimiter ('/').
    */
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
     var pm = PathMaker(subBasePath, subOpts || opts);
-    pm.path = subPath;
+    if (pm.path.length < 0)
+      pm.path = subPath;
     return pm;
   }
   /**
    * Returns a path string from joingin `basePath` and `path`, merging 
    * `payload` values and joining `payload.query` or `query` values as a URL 
    * query string.
-   * #### Only `query` values are encoded with `encodeURIComponent`!
+   * #### Only `query` values are encoded with `encodeURIComponent`.
    * @param {string|string[]|object} path The `path` to join to the basePath 
    * OR the `payload` object.
    * @param {object} payload - Object to merge into the `basePath` and `path`,
@@ -71,7 +83,7 @@ export default function PathMaker(basePath, opts) {
    */
   function makePath(path, payload, query) {
     var returnPath = basePath;
-    switch(arguments.length) {
+    switch (arguments.length) {
       case 0: return returnPath;
       case 1:
         if (typeof path === 'string' || Array.isArray(path)) {
@@ -81,7 +93,7 @@ export default function PathMaker(basePath, opts) {
           if (payload)
             query = payload.query;
         }
-      break;
+        break;
       case 2:
         if (typeof path === 'string' || Array.isArray(path)) {
           returnPath = combinePath(basePath, path);
@@ -93,10 +105,10 @@ export default function PathMaker(basePath, opts) {
           if (payload)
             query = query || payload.query;
         }
-      break;
+        break;
       default:
         returnPath = combinePath(basePath, path);
-      break;
+        break;
     }
     if (payload) {
       returnPath = mergePayload(returnPath, payload);
@@ -141,7 +153,7 @@ export default function PathMaker(basePath, opts) {
        * @returns {string} The part itself or a matching part from the payload.
        */
       function partFromPayload(part) {
-        if (part.length < 2 || part.charAt(0) !== ':')
+        if (part.length < 2 || part.charAt(0) !== tokenPrefix)
           return part;
         const key = part.substr(1);
         if (!payload.hasOwnProperty(key))
@@ -202,15 +214,23 @@ export default function PathMaker(basePath, opts) {
    */
   makePath.query = makeQueryString;
   /**
-   * Path passed to the `sub` method, to create this `PathMaker` instance.
-   * Only exists on `PathMaker` instances created by calling `sub`.
+   * Path or sub-path used to create this `PathMaker` instance.
+   * Passed in to the `PathMaker` function or its `sub` method.
    * @type {string}
    */
-  makePath.path = '';
+  makePath.path = pathFromOptions;
 
   return makePath;
 }
 
 function isDelimiter(value) {
   return typeof value === 'string' && value.length > 0;
+}
+
+function isPath(value) {
+  return typeof value === 'string';
+}
+
+function isTokenPrefix(value) {
+  return typeof value === 'string' && value.length > 0 && value.length < 2;
 }
