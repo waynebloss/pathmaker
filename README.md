@@ -1,8 +1,34 @@
 # PathMaker
 
-A simple system to make URL or FileSystem paths and query strings (for URLs).
+A factory for making URL/FileSystem paths with templates and URL query strings.
 
-## Example
+## Usage
+
+```js
+var basePath = PathMaker('/my/path/or/url/'); 
+var subPath = basePath.sub('sub/path');
+basePath(); // returns: '/my/path/or/url/'
+subPath(); // returns: '/my/path/or/url/sub/path'
+```
+
+See [Examples](#examples) below for extended usage including templates and 
+URL query strings.
+
+## Options
+
+| Name | Default Value | Description |
+| ---- | ------------- | ----------- |
+| `delimiter` | `'/'` | The path delimiter. |
+| `tokenPrefix` | `':'` | The path token prefix. |
+| `path` | `''` | The path represented by the `PathMaker`. |
+
+## Notes
+
+- Trailing delimiters are not automatically added or removed at any time.
+- Only query object values are encoded with `encodeURIComponent`. No other 
+part of the path is automatically encoded.
+
+## Examples
 
 ```js
 import PathMaker from 'pathmaker';
@@ -70,21 +96,6 @@ console.log( // Alternatively, pass an array as a path.
 ); // http://api.site.test/users/10/organizations/search?q=the%20query
 
 ```
-
-## Notes
-
-- Trailing delimiters are not automatically added or removed at any time.
-- Only query object values are encoded with `encodeURIComponent`. No other 
-part of the path is automatically encoded.
-
-
-## Options
-
-| Name | Default Value | Description |
-| ---- | ------------- | ----------- |
-| `delimiter` | `'/'` | The path delimiter. |
-| `tokenPrefix` | `':'` | The path token prefix. |
-| `path` | `''` | The path represented by the `PathMaker`. |
 
 ## Roadmap
 
