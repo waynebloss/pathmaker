@@ -28,7 +28,6 @@ function isTokenPrefix(value) {
  * instance. ('')
  * @param {string} [opts.tokenPrefix] Prefix used to identify tokens within
  * a path. (':') e.g. '/path/to/:id/' where `:id` is the token.
- * @returns {function} The `PathMaker` function instance to make paths with.
  */
 export default function PathMaker(basePath, opts) {
   /** 
@@ -76,7 +75,6 @@ export default function PathMaker(basePath, opts) {
    * @param {string} [subOpts.path] Logical path represented by this instance 
    * if it is different than the `subPath`. For use by your application via the
    * `.path` field of the returned function instance. ('')
-   * @returns {function} A new `PathMaker` function instance.
    */
   function createSub(subPath, subOpts) {
     var subBasePath = combinePath(basePath, subPath);
@@ -243,7 +241,6 @@ export default function PathMaker(basePath, opts) {
    * Returns a new `PathMaker` by joining `basePath` with the given `path`.
    * @function
    * @param {string} path The path to join to the basePath.
-   * @returns {PathMaker} A new `PathMaker`.
    */
   makePath.sub = createSub;
   /**
