@@ -270,3 +270,7 @@ export default function PathMaker(basePath, opts) {
 
   return makePath;
 }
+
+export {
+  PathMaker,
+};
