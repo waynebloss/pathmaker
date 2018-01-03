@@ -12,7 +12,10 @@
     "start": "node scripts/start.js",
     "build": "babel src/lib --out-dir lib --copy-files",
     "build-dev": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "release-major": "yn 'Did you remember to build?' && npm version major",
+    "release-minor": "yn 'Did you remember to build?' && npm version minor",
+    "release-patch": "yn 'Did you remember to build?' && npm version patch"
   },
   "dependencies": {},
   "peerDependencies": {},
@@ -58,7 +61,8 @@
     "webpack": "3.5.1",
     "webpack-dev-server": "2.8.2",
     "webpack-manifest-plugin": "1.2.1",
-    "whatwg-fetch": "2.0.3"
+    "whatwg-fetch": "2.0.3",
+    "yn-cli": "^1.0.0"
   },
   "jest": {
     "collectCoverageFrom": [

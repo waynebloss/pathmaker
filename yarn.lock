@@ -6756,3 +6756,7 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+yn-cli@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/yn-cli/-/yn-cli-1.0.0.tgz#f40b393a5b5237b24c7461894d2f9c8c8ff78664"
